@@ -33,7 +33,9 @@ def setup_logger():
     return logger
 
 
-def fetch_and_check_activity(base_url, act_id, logger):
+def fetch_and_check_activity(base_url: str, act_id: int, logger: logging.Logger):
+    if act_id % 500 == 0:
+        logger.warning(f"Checking activity ID {act_id}...")
     url = f"{base_url}?c=apply&m=ajax_query&act_id={act_id}"
     try:
         response = requests.get(url, timeout=10)
@@ -76,17 +78,17 @@ def fetch_and_check_activity(base_url, act_id, logger):
     return None
 
 
-def handle_shutdown(executor, logger):
-    logger.info("Shutting down executor...")
+def handle_shutdown(executor: ThreadPoolExecutor, logger: logging.Logger):
+    logger.warning("Shutting down executor...")
     executor.shutdown(wait=True, cancel_futures=True)
-    logger.info("Shutdown complete.")
+    logger.warning("Shutdown complete.")
 
 
 def main():
     logger = setup_logger()
     base_url = "https://activity.ncku.edu.tw/index.php"
     start_id = 14000
-    end_id = 15000
+    end_id = 20000
 
     executor = ThreadPoolExecutor(max_workers=10)
     futures = {
