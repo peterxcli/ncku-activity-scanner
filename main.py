@@ -6,14 +6,39 @@ from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
+from colorlog import ColoredFormatter
 
 
-def fetch_and_check_activity(base_url, act_id):
+def setup_logger():
+    """Setup the colored logger."""
+    logger = logging.getLogger("ActivityLogger")
+    handler = logging.StreamHandler()
+    formatter = ColoredFormatter(
+        "%(log_color)s%(asctime)s - %(levelname)s - %(message)s%(reset)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        reset=True,
+        log_colors={
+            "DEBUG": "cyan",
+            "INFO": "green",
+            "WARNING": "yellow",
+            "ERROR": "red",
+            "CRITICAL": "red,bg_white",
+        },
+        secondary_log_colors={},
+        style="%",
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+    return logger
+
+
+def fetch_and_check_activity(base_url, act_id, logger):
     url = f"{base_url}?c=apply&m=ajax_query&act_id={act_id}"
     try:
         response = requests.get(url, timeout=10)
         if "error-no active data" in response.text:
-            return
+            return None
         soup = BeautifulSoup(response.content, "html.parser")
         table = soup.find("table", class_="grid_data")
         if table:
@@ -42,9 +67,12 @@ def fetch_and_check_activity(base_url, act_id):
                 now = datetime.now()
                 days_till_start = (register_start - now).days
                 if register_start <= now <= register_end or 0 <= days_till_start <= 7:
+                    logger.info(
+                        f"Activity ID {act_id}, Meals provided, URL: {url}, Register from {register_start} to {register_end}"
+                    )
                     return f"Activity ID {act_id}, Meals provided, URL: {url}, Register from {register_start} to {register_end}"
     except requests.RequestException as e:
-        return f"Activity ID {act_id}: Failed to fetch data due to {e}"
+        logger.error(f"Activity ID {act_id}: Failed to fetch data due to {e}")
     return None
 
 
@@ -55,8 +83,11 @@ def handle_shutdown(executor, logger):
 
 
 def main():
+    logger = setup_logger()
     base_url = "https://activity.ncku.edu.tw/index.php"
     start_id = 14000
+    end_id = 15000
+
     executor = ThreadPoolExecutor(max_workers=10)
     futures = {
         executor.submit(fetch_and_check_activity, base_url, act_id, logger): act_id
