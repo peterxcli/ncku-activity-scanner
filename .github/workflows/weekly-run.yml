@@ -46,5 +46,5 @@ jobs:
           assignees: ${{ github.actor }},${{ github.triggering_actor }}
           labels: automated-issue
           body: |
-            ${{ steps.script.outputs.result }}
-
+            > [!IMPORTANT]
+            > ${{ steps.script.outputs.result }}
