@@ -1,4 +1,7 @@
-from concurrent.futures import ThreadPoolExecutor
+import logging
+import signal
+import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
 import requests
@@ -45,19 +48,38 @@ def fetch_and_check_activity(base_url, act_id):
     return None
 
 
+def handle_shutdown(executor, logger):
+    logger.info("Shutting down executor...")
+    executor.shutdown(wait=True, cancel_futures=True)
+    logger.info("Shutdown complete.")
+
+
 def main():
     base_url = "https://activity.ncku.edu.tw/index.php"
     start_id = 14000
-    end_id = 20000
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        futures = {
-            executor.submit(fetch_and_check_activity, base_url, act_id): act_id
-            for act_id in range(start_id, end_id + 1)
-        }
-        for future in futures:
+    executor = ThreadPoolExecutor(max_workers=10)
+    futures = {
+        executor.submit(fetch_and_check_activity, base_url, act_id, logger): act_id
+        for act_id in range(start_id, end_id + 1)
+    }
+
+    def signal_handler(signal, frame):
+        logger.warning("Signal received, handling shutdown...")
+        handle_shutdown(executor, logger)
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    try:
+        for future in as_completed(futures):
             result = future.result()
-            if result:
-                print(result)
+    except KeyboardInterrupt:
+        logger.warning("Interrupted by user, initiating shutdown...")
+        handle_shutdown(executor, logger)
+        sys.exit(1)
+    finally:
+        handle_shutdown(executor, logger)
 
 
 if __name__ == "__main__":
