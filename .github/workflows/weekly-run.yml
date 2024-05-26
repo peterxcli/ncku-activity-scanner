@@ -28,6 +28,9 @@ jobs:
         id: script
         run: |
           output=$(python main.py 2>&1 | sed 's/\x1b\[[0-9;]*m//g')
+          output="${output//'%'/'%25'}"  # Escape %
+          output="${output//$'\n'/'<br/>'}"  # Escape newlines
+          output="${output//$'\r'/'%0D'}"  # Escape carriage returns
           echo "::set-output name=result::$output"
 
       - name: Get current date
