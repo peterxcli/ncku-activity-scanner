@@ -27,7 +27,7 @@ jobs:
       - name: Run script and capture output
         id: script
         run: |
-          output=$(python main.py 2>&1)
+          output=$(python main.py 2>&1 | sed 's/\x1b\[[0-9;]*m//g')
           echo "::set-output name=result::$output"
 
       - name: Get current date
