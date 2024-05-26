@@ -30,13 +30,15 @@ jobs:
           output=$(python main.py)
           echo "::set-output name=result::$output"
 
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+
       - name: Create Issue
         uses: dacbd/create-issue-action@main
         with:
           token: ${{ github.token }}
-          title: |
-            [Weekly Event Report] Date: ${{ format('{0,date,YYYY-MM-dd}', github.event.schedule) }}
-
+          title: "[Weekly Event Report] Date: ${{ steps.date.outputs.date }}"
           assignees: ${{ github.actor }},${{ github.triggering_actor }}
           labels: automated-issue
           body: ${{ steps.script.outputs.result }}

@@ -88,7 +88,7 @@ def main():
     logger = setup_logger()
     base_url = "https://activity.ncku.edu.tw/index.php"
     start_id = 14000
-    end_id = 20000
+    end_id = 15000
 
     executor = ThreadPoolExecutor(max_workers=10)
     futures = {
