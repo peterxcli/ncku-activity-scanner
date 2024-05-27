@@ -15,9 +15,14 @@
             margin-bottom: 1em;
             background-color: #f9f9f9;
         }
+        .scrollable-table {
+            overflow-x:scroll; /* Enables horizontal scrolling */
+        }
         table {
             width: 100%;
             border-collapse: collapse;
+            overflow-x: scroll;
+            display: block;
         }
         th, td {
             border: 1px solid #ddd;
@@ -26,6 +31,18 @@
         }
         th {
             background-color: #f2f2f2;
+        }
+        @media (max-width: 768px) {
+            body {
+                margin: 1em;
+                font-size: 16px;
+            }
+            .issue {
+                padding: 0.5em;
+            }
+            th, td {
+                padding: 4px;
+            }
         }
     </style>
 </head>
@@ -49,6 +66,11 @@
                     issueElement.className = 'issue';
                     issueElement.innerHTML = `
                         <h2><a href="${issue.html_url}" target="_blank">${issue.title}</a></h2>
+                        <div class="scrollable-table">
+                            <table>
+                                <!-- Table Content Here -->
+                            </table>
+                        </div>
                         <div>${marked.parse(issue.body)}</div>
                     `;
                     issuesContainer.appendChild(issueElement);
