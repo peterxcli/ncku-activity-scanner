@@ -41,6 +41,6 @@ jobs:
           title: "[Weekly Event Report] Date: ${{ steps.date.outputs.date }}"
           assignees: ${{ github.actor }},${{ github.triggering_actor }}
           labels: automated-issue
-          body: |
+          body: >
             # Weekly Event Report
             ${{ steps.script.outputs.result }}
