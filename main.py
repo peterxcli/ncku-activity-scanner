@@ -32,7 +32,6 @@ def setup_logger():
     logger.setLevel(logging.INFO)
     return logger
 
-
 def fetch_and_check_activity(base_url: str, act_id: int, logger: logging.Logger):
     if act_id % 500 == 0:
         logger.warning(f"Checking activity ID {act_id}...")
@@ -47,6 +46,7 @@ def fetch_and_check_activity(base_url: str, act_id: int, logger: logging.Logger)
             rows = table.find_all("tr")
             register_start, register_end = None, None
             meals_provided = False
+            activity_data = {}
             for row in rows:
                 cells = row.find_all("th")
                 data_cells = row.find_all("td")
@@ -64,16 +64,18 @@ def fetch_and_check_activity(base_url: str, act_id: int, logger: logging.Logger)
                         and "是" in data_cells[idx].text.strip()
                     ):
                         meals_provided = True
-
+                    activity_data[cell.text.strip()] = data_cells[idx].text.strip() if idx < len(data_cells) else ""
             if meals_provided and register_start and register_end:
                 now = datetime.now()
                 days_till_start = (register_start - now).days
                 if register_start <= now <= register_end or 0 <= days_till_start <= 7:
-                    return (act_id, url, register_start.strftime("%Y-%m-%d %H:%M"), register_end.strftime("%Y-%m-%d %H:%M"))
-
+                    required_fields = ["活動分享網址", "活動名稱", "活動地點", "活動開始", "活動結束", "報名開始", "報名結束", "是否提供餐點"]
+                    result_data = [activity_data.get(field, " ") for field in required_fields]
+                    return result_data
     except requests.RequestException as e:
         logger.error(f"Activity ID {act_id}: Failed to fetch data due to {e}")
     return None
+
 
 
 def handle_shutdown(executor: ThreadPoolExecutor, logger: logging.Logger):
@@ -86,32 +88,25 @@ def main():
     logger = setup_logger()
     base_url = "https://activity.ncku.edu.tw/index.php"
     start_id = 14000
-    end_id = 20000
-
+    end_id = 15000
     executor = ThreadPoolExecutor(max_workers=10)
-    futures = {
-        executor.submit(fetch_and_check_activity, base_url, act_id, logger): act_id
-        for act_id in range(start_id, end_id + 1)
-    }
+    futures = {executor.submit(fetch_and_check_activity, base_url, act_id, logger): act_id for act_id in range(start_id, end_id + 1)}
 
-    def signal_handler(signal, frame):
-        logger.warning("Signal received, handling shutdown...")
-        handle_shutdown(executor, logger)
-        sys.exit(0)
-
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
-
+    results = []
     try:
         for future in as_completed(futures):
             result = future.result()
-    except KeyboardInterrupt:
-        logger.warning("Interrupted by user, initiating shutdown...")
-        handle_shutdown(executor, logger)
-        sys.exit(1)
+            if result:
+                results.append(result)
     finally:
         handle_shutdown(executor, logger)
-
+        if results:
+            headers = ["URL", "Name", "Location", "Start", "End", "Registration Start", "Registration End", "Meals Provided"]
+            table = "| " + " | ".join(headers) + " |\n"
+            table += "| --- " * len(headers) + "|\n"
+            for res in results:
+                table += "| " + " | ".join(res) + " |\n"
+            print(table)
 
 if __name__ == "__main__":
     main()
