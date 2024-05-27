@@ -91,7 +91,7 @@ def main():
     logger = setup_logger()
     base_url = "https://activity.ncku.edu.tw/index.php"
     start_id = 14000
-    end_id = 14800
+    end_id = 20000
     executor = ThreadPoolExecutor(max_workers=10)
     futures = {executor.submit(fetch_and_check_activity, base_url, act_id, logger): act_id for act_id in range(start_id, end_id + 1)}
 
