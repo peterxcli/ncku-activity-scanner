@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open GitHub Issues</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+        }
+        .issue {
+            border: 1px solid #ddd;
+            padding: 1em;
+            margin-bottom: 1em;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Open GitHub Issues</h1>
+    <div id="issues">Loading...</div>
+
+    <script>
+        const owner = 'peterxcli';
+        const repo = 'ncku-activity-scanner';
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/issues?state=open`;
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const issuesContainer = document.getElementById('issues');
+                issuesContainer.innerHTML = '';
+                data.forEach(issue => {
+                    const issueElement = document.createElement('div');
+                    issueElement.className = 'issue';
+                    issueElement.innerHTML = `
+                        <h2><a href="${issue.html_url}" target="_blank">${issue.title}</a></h2>
+                        <p>${issue.body}</p>
+                    `;
+                    issuesContainer.appendChild(issueElement);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching issues:', error);
+                document.getElementById('issues').innerHTML = 'Error loading issues.';
+            });
+    </script>
+</body>
+</html>
