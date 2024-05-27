@@ -8,37 +8,56 @@
         body {
             font-family: Arial, sans-serif;
             margin: 2em;
+            background-color: #000; /* Pure black background for the body */
+            color: #fff; /* Pure white for text */
         }
         .issue {
-            border: 1px solid #ddd;
+            border: 2px solid #555; /* Slightly thicker and lighter border for issues */
             padding: 1em;
             margin-bottom: 1em;
-            background-color: #f9f9f9;
+            background-color: #1a1a1a; /* Very dark grey for issues */
+            border-radius: 8px; /* Rounded corners for the issue boxes */
         }
         .scrollable-table {
-            overflow-x:scroll; /* Enables horizontal scrolling */
+            overflow-x: auto; /* Enables horizontal scrolling */
         }
         table {
             width: 100%;
-            border-collapse: collapse;
-            overflow-x: scroll;
+            border-collapse: separate; /* Allows for border radius on tables */
+            background-color: #121212; /* Very dark grey for table */
+            overflow-x: auto;
             display: block;
+            border: 1px solid #555; /* Subtle border for the table */
+            border-radius: 8px; /* Rounded corners for the table */
+            margin-bottom: 1em; /* Adds space below the table */
         }
         th, td {
-            border: 1px solid #ddd;
+            border: 1px solid #444; /* Dark border for table cells, less prominent */
             padding: 8px;
             text-align: left;
+            background-color: #222; /* Slightly lighter dark grey for cells */
+            color: #e0e0e0; /* Light grey text */
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #333; /* Dark grey for headers */
+            color: #fff; /* White text for headers */
+            border-bottom: 2px solid #555; /* Distinguished border for header row */
+        }
+        a {
+            color: #4f82d1; /* Light blue for links, suggesting interactivity */
+            text-decoration: underline; /* Underlining to indicate clickability */
+        }
+        a:hover {
+            color: #82afff; /* Lighter blue on hover for visual feedback */
         }
         @media (max-width: 768px) {
             body {
                 margin: 1em;
                 font-size: 16px;
             }
-            .issue {
+            .issue, table {
                 padding: 0.5em;
+                border-radius: 5px; /* Smaller radius for smaller screens */
             }
             th, td {
                 padding: 4px;
