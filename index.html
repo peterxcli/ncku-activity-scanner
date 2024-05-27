@@ -18,9 +18,10 @@
     </style>
 </head>
 <body>
-    <h1>Open GitHub Issues</h1>
+    <h1>又要到飯了兄弟們</h1>
     <div id="issues">Loading...</div>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         const owner = 'peterxcli';
         const repo = 'ncku-activity-scanner';
@@ -36,7 +37,7 @@
                     issueElement.className = 'issue';
                     issueElement.innerHTML = `
                         <h2><a href="${issue.html_url}" target="_blank">${issue.title}</a></h2>
-                        <p>${issue.body}</p>
+                        <div>${marked.parse(issue.body)}</div>
                     `;
                     issuesContainer.appendChild(issueElement);
                 });
