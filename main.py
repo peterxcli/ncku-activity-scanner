@@ -69,10 +69,8 @@ def fetch_and_check_activity(base_url: str, act_id: int, logger: logging.Logger)
                 now = datetime.now()
                 days_till_start = (register_start - now).days
                 if register_start <= now <= register_end or 0 <= days_till_start <= 7:
-                    logger.info(
-                        f"Activity ID {act_id}, Meals provided, URL: {url}, Register from {register_start} to {register_end}"
-                    )
-                    return f"Activity ID {act_id}, Meals provided, URL: {url}, Register from {register_start} to {register_end}"
+                    return (act_id, url, register_start.strftime("%Y-%m-%d %H:%M"), register_end.strftime("%Y-%m-%d %H:%M"))
+
     except requests.RequestException as e:
         logger.error(f"Activity ID {act_id}: Failed to fetch data due to {e}")
     return None
