@@ -28,6 +28,9 @@ jobs:
         id: script
         run: |
           output=$(python main.py)
+          output="${output//'%'/'%25'}"  # Escape %
+          output="${output//$'\n'/'%0A'}"  # Escape newlines
+          output="${output//$'\r'/'%0D'}"  # Escape carriage returns
           echo "::set-output name=result::$output"
 
       - name: Get current date
@@ -41,6 +44,6 @@ jobs:
           title: "[Weekly Event Report] Date: ${{ steps.date.outputs.date }}"
           assignees: ${{ github.actor }},${{ github.triggering_actor }}
           labels: automated-issue
-          body: >
+          body: |
             # Weekly Event Report
             ${{ steps.script.outputs.result }}
