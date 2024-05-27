@@ -71,6 +71,9 @@ def fetch_and_check_activity(base_url: str, act_id: int, logger: logging.Logger)
                 if register_start <= now <= register_end or 0 <= days_till_start <= 7:
                     required_fields = ["活動分享網址", "活動名稱", "活動地點", "活動開始", "活動結束", "報名開始", "報名結束", "是否提供餐點"]
                     result_data = [activity_data.get(field, " ") for field in required_fields]
+                    name_with_link = f"[{activity_data.get('活動名稱', 'No Name Available')}](https://activity.ncku.edu.tw/index.php?c=apply&no={act_id})"
+                    result_data[1] = name_with_link  # Replace name with link
+                    result_data = result_data[1:]
                     return result_data
     except requests.RequestException as e:
         logger.error(f"Activity ID {act_id}: Failed to fetch data due to {e}")
@@ -88,7 +91,7 @@ def main():
     logger = setup_logger()
     base_url = "https://activity.ncku.edu.tw/index.php"
     start_id = 14000
-    end_id = 15000
+    end_id = 14800
     executor = ThreadPoolExecutor(max_workers=10)
     futures = {executor.submit(fetch_and_check_activity, base_url, act_id, logger): act_id for act_id in range(start_id, end_id + 1)}
 
@@ -101,7 +104,7 @@ def main():
     finally:
         handle_shutdown(executor, logger)
         if results:
-            headers = ["URL", "Name", "Location", "Start", "End", "Registration Start", "Registration End", "Meals Provided"]
+            headers = ["Activity", "Location", "Start", "End", "Registration Start", "Registration End", "Meals Provided"]
             table = "| " + " | ".join(headers) + " |\n"
             table += "| --- " * len(headers) + "|\n"
             for res in results:
