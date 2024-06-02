@@ -1,9 +1,9 @@
 name: Weekly Python Script Run Test
 
 on:
-  schedule:
-    # This cron job runs at 00:00 every Sunday
-    - cron: '0 0 * * 0'
+  # schedule:
+  #   # This cron job runs at 00:00 every Sunday
+  #   - cron: '0 0 * * 0'
   workflow_dispatch:
 
 jobs:
